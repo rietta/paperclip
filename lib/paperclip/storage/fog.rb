@@ -200,10 +200,13 @@ module Paperclip
       end
 
       def host_name_for_directory
+
+        aws_endpoint = @options[:s3_credentials][:s3_host_name] || ENV['AWS_ENDPOINT'] || 's3.amazonaws.com'
+
         if directory_name.to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-          "#{directory_name}.s3.amazonaws.com"
+          "#{directory_name}.#{aws_endpoint}"
         else
-          "s3.amazonaws.com/#{directory_name}"
+          "#{aws_endpoint}/#{directory_name}"
         end
       end
 
