@@ -147,8 +147,8 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          if @option[:override_url]
-            url = URI.parse(@option[:override_url])
+          if @options[:override_url]
+            url = URI.parse(@options[:override_url])
             @options[:path] = url.path
             @options[:url]  = ":s3_path_url".freeze
           else
