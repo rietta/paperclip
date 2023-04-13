@@ -164,24 +164,35 @@ module Paperclip
           @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end
 
-        Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          protocol = attachment.s3_protocol(style, true)
-          host = attachment.s3_host_alias
-          path = attachment.path(style).
-            split("/")[attachment.s3_prefixes_in_alias..-1].
-            join("/").
-            sub(%r{\A/}, "".freeze)
-          "#{protocol}//#{host}/#{path}"
-        end unless Paperclip::Interpolations.respond_to? :s3_alias_url
-        Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
-        end unless Paperclip::Interpolations.respond_to? :s3_path_url
-        Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
-        end unless Paperclip::Interpolations.respond_to? :s3_domain_url
-        Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
-        end unless Paperclip::Interpolations.respond_to? :asset_host
+        if  @options[:override_url]
+          Paperclip.interpolates(:s3_path_url) do |attachment, style|
+            "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          end
+        else
+
+          Paperclip.interpolates(:s3_alias_url) do |attachment, style|
+            protocol = attachment.s3_protocol(style, true)
+            host = attachment.s3_host_alias
+            path = attachment.path(style).
+              split("/")[attachment.s3_prefixes_in_alias..-1].
+              join("/").
+              sub(%r{\A/}, "".freeze)
+            "#{protocol}//#{host}/#{path}"
+          end unless Paperclip::Interpolations.respond_to? :s3_alias_url
+
+          Paperclip.interpolates(:s3_path_url) do |attachment, style|
+            "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          end unless Paperclip::Interpolations.respond_to? :s3_path_url
+          
+          Paperclip.interpolates(:s3_domain_url) do |attachment, style|
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          end unless Paperclip::Interpolations.respond_to? :s3_domain_url
+          
+          Paperclip.interpolates(:asset_host) do |attachment, style|
+            "#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          end unless Paperclip::Interpolations.respond_to? :asset_host
+
+        end
       end
 
       def expiring_url(time = 3600, style_name = default_style)
