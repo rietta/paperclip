@@ -147,12 +147,18 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
-            @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
+          if @option[:override_url]
+            url = URI.parse(@option[:override_url])
+            @options[:path] = url.path
             @options[:url]  = ":s3_path_url".freeze
+          else
+            unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
+              @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
+              @options[:url]  = ":s3_path_url".freeze
+            end
           end
-          @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
+          @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
           @http_proxy = @options[:http_proxy] || nil
 
           @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
